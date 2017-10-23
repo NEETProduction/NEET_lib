@@ -13,17 +13,37 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
-#ifndef SYSV_H
-#define SYSV_H
+#include <stdio.h>
+#include <unistd.h>
 
 #include <sys/types.h>
-#include <sys/ipc.h>
+#include <sys/wait.h>
 
-//get shared memory
-int sysv_shmget(void **ret, char *tok, key_t shm_fixkey, size_t size, int user_mode);
-int sysv_shmfree(int shm_id);
+int parent_process(int argc, char **argv);
+int child_process(int argc, char **argv);
 
+int main(int argc, char **argv)
+{
+	pid_t child_pid = fork();
+	if(!child_pid)
+	{
+		return child_process(argc, argv);
+	}
 
+	parent_process(argc, argv);
+	waitpid(child_pid, 0, 0);
 
-#endif
+	return 0;
+}
+
+int parent_process(int argc, char **argv)
+{
+	printf("Hello, Child! from parent\n");
+	return 0;
+}
+
+int child_process(int argc, char**argv)
+{
+	printf("Hello, Parent! from child\n");
+	return 0;
+}
